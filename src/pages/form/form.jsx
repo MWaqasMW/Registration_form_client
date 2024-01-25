@@ -89,7 +89,12 @@
 
 // export default Form;
 
+
+
+
+
 // for multiply images 
+
 import React, { useState } from 'react';
 
 const Form = () => {
@@ -100,6 +105,7 @@ const Form = () => {
         password: '',
         files: [], // Array to store multiple files
     });
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
@@ -112,6 +118,7 @@ const Form = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
         const apiEndpoint = 'http://localhost:3000/api/v1/createstudent';
         const form = new FormData();
@@ -127,12 +134,19 @@ const Form = () => {
             }
         });
 
-        // Make the API request
+        // Set a timeout for the API request (e.g., 10 seconds)
+        const timeoutId = setTimeout(() => {
+            setLoading(false);
+            console.error('Request timed out');
+        }, 10000); // 10 seconds timeout
+
         try {
             const response = await fetch(apiEndpoint, {
                 method: 'POST',
                 body: form,
             });
+
+            clearTimeout(timeoutId); // Clear the timeout since the request was successful
 
             if (response.ok) {
                 // Handle success
@@ -143,6 +157,8 @@ const Form = () => {
             }
         } catch (error) {
             console.error('Error sending data:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -178,11 +194,15 @@ const Form = () => {
                     <input type="file" name="files" onChange={handleChange} multiple />
                 </div>
             </div>
-            <button type="submit">Submit</button>
+            <button type="submit" disabled={loading}>{loading ? "Submitting..." : "Submit"}</button>
         </form>
     );
 };
 
 export default Form;
+
+
+
+
 
 
